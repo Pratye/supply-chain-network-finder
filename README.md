@@ -1,5 +1,7 @@
 # Supply Chain Network Visualization
 
+**Live Preview:** [https://supply-chain-graph.onrender.com](https://supply-chain-graph.onrender.com)
+
 This interactive web application provides a Neo4j-style visualization of global trade flows, enabling users to explore the relationships between countries, suppliers, products, and importers through an intuitive force-directed graph.
 
 ## Key Features
@@ -7,9 +9,12 @@ This interactive web application provides a Neo4j-style visualization of global 
 - **Automatic Data Loading**  
   On page load, the application fetches and parses `Data.csv`, eliminating the need for manual uploads.
 
+- **Live Preview**  
+  Access a deployed demo at the URL above to explore real-time data without local setup.
+
 - **Dynamic Filters**  
-  - **Display Mode:** Choose between full chain view (Country → Supplier → Product → Importer) or any of the six partial linkages (e.g., Country → Supplier, Supplier → Product, etc.)
-  - **Product Mapping:** Group products into major categories (e.g., Gearbox, Seal, Cable) or aggregate by HS codes at the 2-digit or 4-digit level.
+  - **Display Mode:** Choose between full chain view (Country → Supplier → Product → Importer) or any of the six partial linkages (e.g., Country → Supplier, Supplier → Product, etc.)  
+  - **Product Mapping:** Group products into major categories (e.g., Gearbox, Seal, Cable) or aggregate by HS codes at the 2-digit or 4-digit level.  
   - **Transaction Threshold:** Hide links with fewer than *n* transactions to focus on significant trade relationships.
 
 - **Country Normalization**  
@@ -41,7 +46,7 @@ This interactive web application provides a Neo4j-style visualization of global 
    Visit `http://localhost:3000` to view the interactive network.
 
 4. **Data Requirements**  
-   Place your CSV file at `src/Data.csv`. It must include the following columns (case-sensitive):
+   Place your CSV file at `src/Data.csv`. It must include the following columns (case-sensitive):  
    - `Foreign Country`  
    - `Supplier Name`  
    - `Importer Name`  
