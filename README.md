@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# Supply Chain Network Visualization
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This interactive web application provides a Neo4j-style visualization of global trade flows, enabling users to explore the relationships between countries, suppliers, products, and importers through an intuitive force-directed graph.
 
-## Available Scripts
+## Key Features
 
-In the project directory, you can run:
+- **Automatic Data Loading**  
+  On page load, the application fetches and parses `Data.csv`, eliminating the need for manual uploads.
 
-### `npm start`
+- **Dynamic Filters**  
+  - **Display Mode:** Choose between full chain view (Country → Supplier → Product → Importer) or any of the six partial linkages (e.g., Country → Supplier, Supplier → Product, etc.)
+  - **Product Mapping:** Group products into major categories (e.g., Gearbox, Seal, Cable) or aggregate by HS codes at the 2-digit or 4-digit level.
+  - **Transaction Threshold:** Hide links with fewer than *n* transactions to focus on significant trade relationships.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Country Normalization**  
+  Variants of country names (e.g., “GERMANY,” “GERMA,” “GERM”) are mapped to standardized labels (e.g., “Germany”) for clear, consolidated nodes.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Product Categorization**  
+  Unify disparate product names into a small set of core categories, reducing node clutter and highlighting key trade items.
 
-### `npm test`
+- **Search & Highlight**  
+  - **Search Entities:** Type a country, supplier, importer, or product category to isolate that node and its direct trade partners.  
+  - **Click-to-Focus:** Click any node to highlight its direct neighbors; click the background or “Clear” button to reset the view.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Responsive & Interactive**  
+  - **Zoom & Pan:** Scroll to zoom and drag to reposition the graph.  
+  - **Force Layout:** Neo4j-inspired curved links and size-scaled nodes based on transaction volume.  
 
-### `npm run build`
+## Getting Started
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. **Install dependencies**  
+   This is a static site; no build step is required. Ensure you have a local HTTP server (e.g., `python3 -m http.server 3000`).
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. **Run the server**  
+   ```bash
+   cd src/
+   python3 -m http.server 3000
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. **Open in Browser**  
+   Visit `http://localhost:3000` to view the interactive network.
 
-### `npm run eject`
+4. **Data Requirements**  
+   Place your CSV file at `src/Data.csv`. It must include the following columns (case-sensitive):
+   - `Foreign Country`  
+   - `Supplier Name`  
+   - `Importer Name`  
+   - `HS Code `  
+   - `Product Name`  
+   - `CIF Value (USD)`  
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## File Structure
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+my-supply-chain-app/
+├── src/
+│   ├── index.html         # Main HTML
+│   ├── Data.csv           # Trade data file
+│   ├── js/
+│   │   └── main.js        # D3 and filtering logic
+│   └── css/
+│       └── styles.css     # Custom styles
+└── README.md              # This documentation
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Customization
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Add Countries**: Extend the `countryMapping` object in `main.js` for additional aliases.
+- **Modify Product Categories**: Update the `productCategoryMapping` array to include new keywords and labels.
+- **Styling**: Tailwind CSS is used for layout; feel free to override with `styles.css`.
 
-## Learn More
+## License
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+This project is provided under the MIT License.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

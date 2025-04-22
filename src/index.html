@@ -1,0 +1,131 @@
+<!--
+Project Directory Structure:
+
+my-supply-chain-app/
+├── package.json           # NPM dependencies & scripts
+├── README.md              # Project overview & instructions
+├── src/
+│   ├── index.html         # Main HTML file
+│   ├── Data.csv           # Sample CSV data
+│   ├── js/
+│   │   └── main.js        # All JS logic (D3, PapaParse)
+│   └── css/
+│       └── styles.css     # Custom styles (Tailwind overrides, etc.)
+└── dist/                  # Production build (optional)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Network Visualization</title>
+    <!-- Import D3.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <!-- Import PapaParse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; }
+        .node-country { fill: #F79767; }
+        .node-supplier { fill: #8DCC93; }
+        .node-product { fill: #C990C0; }
+        .node-importer { fill: #4C8EDA; }
+        .node-label { font-family: sans-serif; pointer-events: none; }
+        .link-label { font-family: sans-serif; font-size: 9px; text-anchor: middle; pointer-events: none; fill: #555; }
+        .node-count { font-family: sans-serif; font-size: 10px; text-anchor: middle; pointer-events: none; fill: white; }
+    </style>
+</head>
+<body>
+    <div class="flex flex-col h-screen bg-gray-100">
+        <!-- Header -->
+        <div class="bg-white p-4 shadow-md space-y-4">
+            <h1 class="text-xl font-bold text-gray-800">Neo4j-Style Supply Chain Network</h1>
+            <p class="text-gray-600">Visualizing complete supply chain flow: Country → Supplier → Product → Importer</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Display Mode -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Display Mode</label>
+                    <select id="display-mode" class="p-2 border rounded bg-white w-full">
+                        <option value="full">Full Chain</option>
+                        <option value="country-supplier">Country → Supplier</option>
+                        <option value="supplier-product">Supplier → Product</option>
+                        <option value="product-importer">Product → Importer</option>
+                        <option value="country-product">Country → Product</option>
+                        <option value="supplier-importer">Supplier → Importer</option>
+                    </select>
+                </div>
+
+                <!-- Product Display -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Display</label>
+                    <div class="flex gap-2">
+                        <select id="product-display-mode" class="p-2 border rounded bg-white w-full">
+                            <option value="hsCode">HS Codes</option>
+                            <option value="productName">Product Names</option>
+                        </select>
+                        <select id="hs-code-level" class="p-2 border rounded bg-white w-full">
+                            <option value="category">2-digit</option>
+                            <option value="subcategory">4-digit</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Min Transactions -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min Transactions</label>
+                    <input id="filter-threshold" type="number" min="1" max="1000" class="p-2 border rounded w-full" value="5" />
+                </div>
+
+                <!-- Search Entities -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Search Entities</label>
+                    <div class="flex gap-2">
+                        <input id="search-term" type="text" placeholder="e.g., Suzlon, Germany, HS 85xx" class="p-2 border rounded w-full" />
+                        <button id="clear-selection-btn" class="p-2 bg-gray-200 rounded hover:bg-gray-300 hidden">Clear</button>
+                    </div>
+                    <p id="selection-message" class="text-xs text-gray-600 mt-1 hidden">
+                        Showing network for selected entity. Click background to clear.
+                    </p>
+                </div>
+            </div>
+
+            <!-- <div>
+                <button id="process-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                    Load Data.csv
+                </button>
+            </div> -->
+        </div>
+
+        <!-- Main visualization area -->
+        <div class="flex-1 p-4">
+            <div id="loading-indicator" class="flex items-center justify-center h-full hidden">
+                <p class="text-xl text-gray-600">Loading…</p>
+            </div>
+            <div id="error-display" class="flex items-center justify-center h-full hidden">
+                <p class="text-xl text-red-600"></p>
+            </div>
+            <div id="visualization-container" class="bg-white rounded-lg shadow-lg h-full overflow-hidden hidden">
+                <svg id="visualization" width="100%" height="100%"></svg>
+            </div>
+        </div>
+
+        <!-- Footer legend -->
+        <div class="bg-gray-200 p-4">
+            <div class="flex flex-wrap gap-6 justify-center">
+                <div class="flex items-center"><div class="w-4 h-4 rounded-full bg-orange-500 mr-2"></div><span class="text-sm">Origin Country</span></div>
+                <div class="flex items-center"><div class="w-4 h-4 rounded-full bg-green-500 mr-2"></div><span class="text-sm">Supplier</span></div>
+                <div class="flex items-center"><div class="w-4 h-4 rounded-full bg-purple-500 mr-2"></div><span class="text-sm">Product/HS Code</span></div>
+                <div class="flex items-center"><div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div><span class="text-sm">Importer</span></div>
+            </div>
+            <div class="text-xs text-center mt-2 text-gray-600">
+                <p>Numbers show transaction counts. Click on nodes to focus on their supply chain network.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- All D3 and CSV-processing logic remains in src/js/main.js -->
+</body>
+<script src="js/main.js"></script>
+</html>
